@@ -83,18 +83,12 @@ class App extends React.Component<{}, IState> {
   private handleNewTx = (msg: string) => {
     const tx = JSON.parse(msg)
 
-    let found = false
-    // TODO: fix dirty logic
-    found:
-    for (const addr of this.state.addrs) {
-      const legacyAddr = BITBOX.Address.toLegacyAddress(addr)
-      for (const output of tx.outputs) {
-        found = output.scriptPubKey.addresses.indexOf(legacyAddr) >= 0
-        if (found) {
-          break found
-        }
-      }
-    }
+    const txAddrs = tx.outputs
+      .map((output: any) => output.scriptPubKey.addresses)
+      .reduce((acc: any, x: any) => acc.concat(x, []))
+    const found: boolean = this.state.addrs
+      .map(addr => BITBOX.Address.toLegacyAddress(addr))
+      .filter(addr => txAddrs.indexOf(addr) !== -1).length > 0
     if (!found) {
       return
     }
