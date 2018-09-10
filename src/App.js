@@ -5,14 +5,8 @@ import Transaction from './Transaction';
 const BITBOX = new BITBOXCli.default()
 const socket = new BITBOX.Socket()
 
-interface IState {
-  addrs: string[]
-  input: string
-  txs: any[]
-}
-
-class App extends React.Component<{}, IState> {
-  constructor(props: {}) {
+class App extends React.Component {
+  constructor(props) {
     super(props)
 
     this.state = {
@@ -22,11 +16,11 @@ class App extends React.Component<{}, IState> {
     }
   }
 
-  public componentDidMount() {
+  componentDidMount() {
     socket.listen('transactions', this.handleNewTx)
   }
 
-  public render() {
+  render() {
     return (
       <div>
         <h1>BCH Transaction Watcher Powered by BITBOX</h1>
@@ -54,14 +48,14 @@ class App extends React.Component<{}, IState> {
     )
   }
 
-  private handleSubmit = (event: React.FormEvent) => {
+  handleSubmit = (event) => {
     event.preventDefault()
     
     const input = this.state.input
 
     try {
       BITBOX.Address.isMainnetAddress(input)
-    } catch {
+    } catch (e) {
       return
     }
 
@@ -75,18 +69,18 @@ class App extends React.Component<{}, IState> {
     })
   }
 
-  private handleChangeText = (event: React.FormEvent<HTMLInputElement>) => 
+  handleChangeText = (event) => 
     this.setState({
       input: event.currentTarget.value
     })
 
-  private handleNewTx = (msg: string) => {
+  handleNewTx = (msg) => {
     const tx = JSON.parse(msg)
 
     const txAddrs = tx.outputs
-      .map((output: any) => output.scriptPubKey.addresses)
-      .reduce((acc: any, x: any) => acc.concat(x, []))
-    const found: boolean = this.state.addrs
+      .map((output) => output.scriptPubKey.addresses)
+      .reduce((acc, x) => acc.concat(x, []))
+    const found = this.state.addrs
       .map(addr => BITBOX.Address.toLegacyAddress(addr))
       .filter(addr => txAddrs.indexOf(addr) !== -1).length > 0
     if (!found) {
