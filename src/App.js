@@ -54,7 +54,9 @@ class App extends React.Component {
     const input = this.state.input
 
     try {
-      BITBOX.Address.isMainnetAddress(input)
+      if (!BITBOX.Address.isMainnetAddress(input)) {
+        return
+      }
     } catch (e) {
       return
     }
